@@ -259,8 +259,9 @@ let count = 0
     .text("In Poverty (%)");
 
   // updateToolTip function above csv import
-  circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
   textGroup = updateToolTip2(chosenXAxis, textGroup);
+  circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
+  
 
   // x axis labels event listener
   labelsGroup.selectAll("text")
@@ -280,6 +281,9 @@ let count = 0
 
         // update text abbreviations
         textGroup = renderAbbr(textGroup, xLinearScale, chosenXAxis);
+
+        // update text tooltips with new info
+        textGroup = updateToolTip(chosenXAxis, textGroup);
 
         // updates circles with new x values
         circlesGroup = renderCircles(circlesGroup, xLinearScale, chosenXAxis);
