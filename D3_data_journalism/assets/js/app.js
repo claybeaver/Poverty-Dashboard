@@ -39,8 +39,8 @@ function xScale(data, chosenXAxis) {
 }
   else {
     const xLinearScale = d3.scaleLinear()
-    .domain([d3.min(data, d => d[chosenXAxis]) * 0.8,
-      d3.max(data, d => d[chosenXAxis]) * 1.2
+    .domain([d3.min(data, d => d[chosenXAxis]) * 0.9,
+      d3.max(data, d => d[chosenXAxis]) * 1.05
     ])
     .range([0, width]);
   return xLinearScale;
@@ -150,7 +150,7 @@ function updateToolTip2(chosenXAxis, textGroup) {
 
 
 // Read CSV
-console.log("Test Before Data Load CSV");
+// console.log("Test Before Data Load CSV");
 
 d3.csv("assets/data/data.csv").then(function (AcsData, err) {
   if (err) throw err;
@@ -178,8 +178,8 @@ let count = 0
 
   // Create y scale function
   let yLinearScale = d3.scaleLinear()
-    .domain([0, d3.max(AcsData, d => d.poverty)])
-    .range([height, 0]);
+    .domain([8, d3.max(AcsData, d => d.poverty)])
+    .range([height, 4]);
 
   // Create initial axis functions
   const bottomAxis = d3.axisBottom(xLinearScale);
