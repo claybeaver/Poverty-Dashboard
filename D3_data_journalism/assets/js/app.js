@@ -239,7 +239,7 @@ let count = 0
     .attr("y", 40)
     .attr("value", "obesity") // value to grab for event listener
     .classed("inactive", true)
-    .text("Obese (%):");
+    .text("Obese (%)");
 
   const healthCareLabel = labelsGroup.append("text")
     .attr("x", 0)
