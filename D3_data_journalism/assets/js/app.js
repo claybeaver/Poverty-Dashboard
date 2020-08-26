@@ -24,19 +24,29 @@ const chartGroup = svg.append("g")
   .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
 // Initial Params (poverty vs smokes)
-let chosenXAxis = "poverty";
+let chosenXAxis = "smokes";
 
 // function used for updating x-scale var upon click on axis label
 function xScale(data, chosenXAxis) {
-  // create scales
+  // create scales for different options
+  if (chosenXAxis === "healthcare") {
   const xLinearScale = d3.scaleLinear()
+    .domain([d3.min(data, d => d[chosenXAxis]) * 0.2,
+      d3.max(data, d => d[chosenXAxis]) * 2.6
+    ])
+    .range([0, width]);
+  return xLinearScale;
+}
+  else {
+    const xLinearScale = d3.scaleLinear()
     .domain([d3.min(data, d => d[chosenXAxis]) * 0.8,
       d3.max(data, d => d[chosenXAxis]) * 1.2
     ])
     .range([0, width]);
-
   return xLinearScale;
+  }
 }
+
 
 // function used for updating xAxis var upon click on axis label
 function renderAxes(newXScale, xAxis) {
@@ -65,20 +75,20 @@ function updateToolTip(chosenXAxis, circlesGroup) {
 
   let label;
 
-  if (chosenXAxis === "poverty") {
-    label = "Poverty Level:";
+  if (chosenXAxis === "smokes") {
+    label = "Smokes: ";
+  } else if (chosenXAxis === "obesity") {
+    label = "Obese: ";
   } else {
-    label = "Test Comment";
+    label = "Less Healthcare: "
   }
 
   const toolTip = d3.tip()
     .attr("class", "tooltip")
     .offset([80, -60])
     .html(function (d) {
-      return (`${d.state}<br>${label} ${d[chosenXAxis]}`);
+      return (`${d.state}<br>Poverty: ${d.poverty}%<br>${label} ${d[chosenXAxis]}%`);
     });
-  
-  console.log('we made it this far')
 
   circlesGroup.call(toolTip);
 
@@ -98,8 +108,6 @@ function updateToolTip(chosenXAxis, circlesGroup) {
 
 
 // Read CSV
-// d3.csv("data/data.csv").then(function (AcsData, err) {
-//   if (err) throw err;
 console.log("Test Before Data Load CSV");
 
 d3.csv("assets/data/data.csv").then(function (AcsData, err) {
@@ -114,10 +122,16 @@ let count = 0
     console.log(`Smokes Data Loaded: Record # ${count}`);
     data.obesity = +data.obesity;
     console.log(`Obesity Data Loaded: Record # ${count}`);
+    data.heathcare = +data.heathcare;
+    console.log(`Healthcare Data Loaded: Record # ${count}`);
+    data.age = +data.age;
+    console.log(`Age Data Loaded: Record # ${count}`);
+    data.income = +data.income;
+    console.log(`Income Data Loaded: Record # ${count}`);
   });
   
 
-  // xLinearScale function above csv import
+  // Run xLinearScale function
   let xLinearScale = xScale(AcsData, chosenXAxis);
 
   // Create y scale function
@@ -168,6 +182,13 @@ let count = 0
     .classed("inactive", true)
     .text("Obese (%):");
 
+  const healthCareLabel = labelsGroup.append("text")
+    .attr("x", 0)
+    .attr("y", 60)
+    .attr("value", "healthcare") // value to grab for event listener
+    .classed("inactive", true)
+    .text("Lacks Healthcare (%)");
+
   // append y axis
   chartGroup.append("text")
     .attr("transform", "rotate(-90)")
@@ -213,11 +234,27 @@ let count = 0
           smokeLabel
             .classed("active", false)
             .classed("inactive", true);
+          healthCareLabel
+            .classed("active", false)
+            .classed("inactive", true);
+        } else if (chosenXAxis === "smokes") {
+          obesityLabel
+            .classed("active", false)
+            .classed("inactive", true);
+          smokeLabel
+            .classed("active", true)
+            .classed("inactive", false);
+          healthCareLabel
+            .classed("active", false)
+            .classed("inactive", true);
         } else {
           obesityLabel
             .classed("active", false)
             .classed("inactive", true);
           smokeLabel
+            .classed("active", false)
+            .classed("inactive", true);
+          healthCareLabel
             .classed("active", true)
             .classed("inactive", false);
         }
