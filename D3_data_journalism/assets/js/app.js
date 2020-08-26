@@ -219,6 +219,7 @@ let count = 0
     .attr('dx', -7)
     .attr('fill', 'white')
     .attr('font-size', '10px')
+    .attr('font-weight', 700)
     .text(function(d){return d.abbr});
 
 
