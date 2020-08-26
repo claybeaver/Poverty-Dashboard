@@ -70,7 +70,17 @@ function renderCircles(circlesGroup, newXScale, chosenXAxis) {
   return circlesGroup;
 }
 
-// function used for updating circles group with new tooltip
+// function to create State abbreviations for the circles
+function renderAbbr (textGroup, newXScale, chosenXAxis) {
+
+  textGroup.transition()
+    .duration(1000)
+    .attr('x', d => newXScale(d[chosenXAxis]));
+
+  return textGroup
+}
+
+// function used for updating circles group with tooltip
 function updateToolTip(chosenXAxis, circlesGroup) {
 
   let label;
@@ -80,7 +90,7 @@ function updateToolTip(chosenXAxis, circlesGroup) {
   } else if (chosenXAxis === "obesity") {
     label = "Obese: ";
   } else {
-    label = "Less Healthcare: "
+    label = "Lack Healthcare: "
   }
 
   const toolTip = d3.tip()
@@ -104,6 +114,38 @@ function updateToolTip(chosenXAxis, circlesGroup) {
 }
 
 
+// function for updating tooltip when hovering over text
+function updateToolTip2(chosenXAxis, textGroup) {
+
+  let label;
+
+  if (chosenXAxis === "smokes") {
+    label = "Smokes: ";
+  } else if (chosenXAxis === "obesity") {
+    label = "Obese: ";
+  } else {
+    label = "Lack Healthcare: "
+  }
+
+  const toolTip = d3.tip()
+    .attr("class", "tooltip")
+    .offset([80, -60])
+    .html(function (d) {
+      return (`${d.state}<br>Poverty: ${d.poverty}%<br>${label} ${d[chosenXAxis]}%`);
+    });
+
+  textGroup.call(toolTip);
+
+  textGroup.on("mouseover", function (data) {
+      toolTip.show(data);
+    })
+    // onmouseout event
+    .on("mouseout", function (data, index) {
+      toolTip.hide(data);
+    });
+
+  return textGroup;
+}
 
 
 
@@ -117,17 +159,17 @@ let count = 0
   AcsData.forEach(function (data) {
     data.poverty = +data.poverty;
     count += 1
-    console.log(`Poverty Data Loaded: Record # ${count}`);
+    // console.log(`Poverty Data Loaded: Record # ${count}`);
     data.smokes = +data.smokes;
-    console.log(`Smokes Data Loaded: Record # ${count}`);
+    // console.log(`Smokes Data Loaded: Record # ${count}`);
     data.obesity = +data.obesity;
-    console.log(`Obesity Data Loaded: Record # ${count}`);
+    // console.log(`Obesity Data Loaded: Record # ${count}`);
     data.heathcare = +data.heathcare;
-    console.log(`Healthcare Data Loaded: Record # ${count}`);
+    // console.log(`Healthcare Data Loaded: Record # ${count}`);
     data.age = +data.age;
-    console.log(`Age Data Loaded: Record # ${count}`);
+    // console.log(`Age Data Loaded: Record # ${count}`);
     data.income = +data.income;
-    console.log(`Income Data Loaded: Record # ${count}`);
+    // console.log(`Income Data Loaded: Record # ${count}`);
   });
   
 
@@ -161,8 +203,24 @@ let count = 0
     .attr("cx", d => xLinearScale(d[chosenXAxis]))
     .attr("cy", d => yLinearScale(d.poverty))
     .attr("r", 10)
-    .attr("fill", "blue")
-    .attr("opacity", ".5");
+    .attr("fill", "teal")
+    .attr("opacity", ".6");
+
+
+  // append abbreviation text
+  let textGroup = chartGroup.selectAll('.abbrText')
+    .data(AcsData)
+    .enter()
+    .append('text')
+    .classed('abbrText', true)
+    .attr('x', d => xLinearScale(d[chosenXAxis]))
+    .attr('y', d => yLinearScale(d.poverty))
+    .attr('dy', 3)
+    .attr('dx', -7)
+    .attr('fill', 'white')
+    .attr('font-size', '10px')
+    .text(function(d){return d.abbr});
+
 
   // Create group for two x-axis labels
   const labelsGroup = chartGroup.append("g")
@@ -196,10 +254,12 @@ let count = 0
     .attr("x", 0 - (height / 2))
     .attr("dy", "1em")
     .classed("axis-text", true)
-    .text("Poverty Level");
+    .attr("font-weight", 900)
+    .text("In Poverty (%)");
 
   // updateToolTip function above csv import
   circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
+  textGroup = updateToolTip2(chosenXAxis, textGroup);
 
   // x axis labels event listener
   labelsGroup.selectAll("text")
@@ -211,20 +271,22 @@ let count = 0
         // replaces chosenXAxis with value
         chosenXAxis = value;
 
-        // console.log(chosenXAxis)
-
-        // functions here found above csv import
         // updates x scale for new data
         xLinearScale = xScale(AcsData, chosenXAxis);
 
         // updates x axis with transition
         xAxis = renderAxes(xLinearScale, xAxis);
 
+        // update text abbreviations
+        textGroup = renderAbbr(textGroup, xLinearScale, chosenXAxis);
+
         // updates circles with new x values
         circlesGroup = renderCircles(circlesGroup, xLinearScale, chosenXAxis);
 
         // updates tooltips with new info
         circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
+
+        
 
         // changes classes to change bold text
         if (chosenXAxis === "obesity") {
