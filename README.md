@@ -12,4 +12,4 @@ Developed an interactive dashboard using D3.js to visualize State Poverty level 
 
 #### Dashboard Example:
 
-![Webpage Example](Readme_Images/D3_webpage_image.jpg)
+![Webpage Example](Readme_Images/D3_dashboard.jpg)
